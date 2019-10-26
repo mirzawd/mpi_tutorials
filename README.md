@@ -29,9 +29,9 @@ Compiling code
 
 1- Go to the root directory of the source code. 
 2- Enter the command  :::: cd build
-3- Enter the command  ::::  cmake .
-4- Enter the command  ::::  cmake 
-5- Run the executable :::: mpirun -np x mpi_tutorial 
+3- Enter the command  ::::  cmake ..
+4- Enter the command  ::::  make -DMPI_BASE_DIR=/path/to/mpi/installation/path/
+5- Run the executable :::: mpirun -np x ../bin/src
 
 ENJOY and please do provide your feedback if you have any questions, like to have an improvement in the source code or want to report a bug. 
 
