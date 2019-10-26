@@ -1,8 +1,31 @@
-################### mpi_tutorials ###################3
+Introduction
+===================
 
 This repository contains examples on MPI library in C++ programing language. The purpose of this repository is to provide beginners to advance level training on MPI subroutines.
 
-############### How to compile the code ########################
+
+Dependencies
+===================
+
+Mandatory Requirements:
+* CMake 2.8.0 (Careful, this will rise soon)
+* A C++ compiler (g++ and clang has been tested)
+* A Fortran compiler
+* A MPI implementation, we described below how to install OpenMPI.
+
+Installing MPI
+===================
+
+The simplest way of getting a distribution of MPI is to download it from
+the repositories, if this is not possible or the version is too old, you can
+get the latest version of OpenMPI from:
+     https://www.open-mpi.org/software/ompi/v3.0/
+and install it following the steps mention in the documentation.
+Very Important, before installing OpenMPI, make sure that the gfortran compiler is installed.
+
+
+Compiling code
+===================
 
 1- Go to the root directory of the source code. 
 2- Enter the command  :::: cd build
