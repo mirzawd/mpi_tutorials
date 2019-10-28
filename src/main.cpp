@@ -14,8 +14,6 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-
-    bool diagnosticFlag =  true;     
      
      // test case to demonstrate how to split communicators and use them for point-tp- point communication
     bool testCase_0 = false;
@@ -36,10 +34,13 @@ int main(int argc, char **argv)
     bool testCase_8 = false;    
 
     // test Case to deminstrate the functionality of MPI_Scatter and MPI_Gather subroutines.
-    bool testCase_9 = true;  
-    bool testCase_10= false;  // test Case to demonstrate the RMA model  
-    bool testCase_11= false ;  // test Case to demonstrate an example on the custom types
-    bool testCase_12= false;  // test case to demonstrate building intra-node communication vith graph topologies 
+    bool testCase_9 = false;  
+     // test Case to demonstrate the RMA model  
+    bool testCase_10= false; 
+     // test Case to demonstrate an example on the custom types
+    bool testCase_11= false ;
+     // test case to demonstrate building intra-node communication vith graph topologies 
+    bool testCase_12= true;  
 
     int rank,size;
 
@@ -50,8 +51,10 @@ int main(int argc, char **argv)
   
     if (testCase_0)
     {
-        if (size%2==0)     
+        if (size%2==0)  
+        {   
             if (rank==0) printf("ERROR:: Please try with odd number of precessors \r\n");
+        } 
         else 
             splittingCommunicators();      
  
@@ -60,7 +63,9 @@ int main(int argc, char **argv)
     {
         // The following two routines estimates the efficiency of non-blocking communication in terms of time in seconds.
         if (size!=2)
-           if (rank==0) printf("ERRRO:: Please try with 2 processors");
+        {
+            if (rank==0) printf("ERRRO:: Please try with 2 processors");
+        }  
         else 
         {
             nonBlockingCommunication();
@@ -73,7 +78,9 @@ int main(int argc, char **argv)
     {
         // The following subroutines estimates the importance of MPI_TEST and MPI_WAIT (RACE conditions)
        if (size!=2)
+       {
            if (rank==0) printf("ERRRO:: Please try with 2 processors");
+       }
        else  
            nonBlockingCommunicationWthRaceCondition();
     }
@@ -84,7 +91,9 @@ int main(int argc, char **argv)
 
        // The following subroutine demonstrates the importance of MPI_Probe( ) in point to point nodal communication.
        if (size!=2)
+       {
            if (rank==0) printf("ERRRO:: Please try with 2 processors");
+       }
        else                                                                  
            CommunicationWithMPIProbe();
     }
@@ -94,7 +103,9 @@ int main(int argc, char **argv)
     {
         // The following subroutine demonstrates  how to communicate  a multi-dimesnional array between the processor
         if (size!=2)
+        {
             if (rank==0) printf("ERRRO:: Please try with 2 processors");
+        }
         else                                                                  
             communicateMultiDimensionalArray();
     }
@@ -171,23 +182,43 @@ int main(int argc, char **argv)
     }
  
     if (testCase_10)
-    {
-          
-        communicateRMA(argc, argv, diagnosticFlag); 
-
+    {     
+       if (size!=2)     
+       {
+           if (rank==0) printf("ERROR:: Please try with 2  precessors \r\n");
+       }
+        else
+           communicateRMA();
     }
 
+         cout<<size<<endl;
     if (testCase_11)
     {
-        mpi_custom_types(argc, argv, diagnosticFlag);
+        if (size!=2) 
+        {    
+            if (rank==0) printf("ERROR:: Please try with 2  precessors \r\n"); 
+        }
+        else
+            mpi_custom_types();
     }
 
    if (testCase_12)
    {
 
-       communicate_graph_topology(argc, argv, diagnosticFlag);    
-
+       if (size!=4)     
+       {
+           if (rank==0) printf("ERROR:: Please try with 4 precessors \r\n"); 
+       }
+       else
+       {
+           communicate_graph_topology();    
+       }
    }
+
+
+
+   MPI_Finalize();
+
 
     
 }

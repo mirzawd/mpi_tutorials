@@ -370,38 +370,6 @@ void communicateBCast(int argc, char **argv, bool diagnosticFlag)
 
    MPI_Bcast(&buffer,100,MPI_DOUBLE,0,MPI_COMM_WORLD);
 
-   //cout<<buffer[50]<<endl;
-
-/*
-   //cout<<n_elements<<endl;  
-   if (rank!=0)
-   {
-       buffer = new double[n_elements];
-   }
-
-   for (int i = 0 ; i< n_elements; i++)
-          buffer[i] = i;                     
-   
-
-   for (int i = 0 ; i< n_elements; i++)
-       cout<<buffer[i]<<endl; 
-
-   
-   MPI_Bcast(&buffer,100,MPI_DOUBLE,0,MPI_COMM_WORLD);
-   
-   cout<<n_elements<<endl;
-    
-
- //  MPI_Barrier(MPI_COMM_WORLD); 
-
-   if (rank==0)
-   { 
-       cout<<"proloterian"<<buffer[99]<<endl;                    
-   } 
-
-
-*/
-
     
 
 }
@@ -629,7 +597,7 @@ void communicateRMA_(int argc, char** argv, bool diagnosticFlag)
 
 
 
-void communicateRMA(int argc, char** argv, bool diagnosticFlag)
+void communicateRMA()
 {
 
     int  NROWS =  100;
@@ -639,12 +607,9 @@ void communicateRMA(int argc, char** argv, bool diagnosticFlag)
     MPI_Datatype column, xpose;
     int errs = 0;
     
-    
-
-
-    MPI_Init(&argc,&argv);
     MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+
     if (nprocs != 2) {
         printf("Run this program with 2 processes\n");fflush(stdout);
         MPI_Abort(MPI_COMM_WORLD, 1);
@@ -659,7 +624,7 @@ void communicateRMA(int argc, char** argv, bool diagnosticFlag)
         /* create datatype for one column */
         MPI_Type_vector(NROWS, 1, NCOLS, MPI_INT, &column);
         /* create datatype for matrix in column-major order */
-        MPI_Type_hvector(NCOLS, 1, sizeof(int), column, &xpose);
+        MPI_Type_create_hvector(NCOLS, 1, sizeof(int), column, &xpose);
         MPI_Type_commit(&xpose);
 
         MPI_Win_create(NULL, 0, 1, MPI_INFO_NULL, MPI_COMM_WORLD, &win);
@@ -703,11 +668,10 @@ void communicateRMA(int argc, char** argv, bool diagnosticFlag)
     }
  
     MPI_Win_free(&win);
-    MPI_Finalize();
 }
 
 
-void  mpi_custom_types(int argc, char** argv, bool diagnosticFlag)
+void  mpi_custom_types()
 {
 
     struct Partstruct particle[2];
@@ -719,13 +683,6 @@ void  mpi_custom_types(int argc, char** argv, bool diagnosticFlag)
     /* compute displacements of structure components */
     MPI_Aint disp[3] = { offsetof(Partstruct, c), offsetof(Partstruct, d), offsetof(Partstruct, b) };
     //The following is the longer way of calculating the displacements
-    //  MPI_Get_address(particle, disp);
-    //  MPI_Get_address(particle[0].d, disp+1);
-    //  MPI_Get_address(particle[0].b, disp+2);
-    //  MPI_Aint base = disp[0];
-    //  for (i=0; i < 3; i++) disp[i] = MPI_Aint_diff(disp[i], base);
-
-    
     MPI_Type_create_struct(3, blocklen, disp, type, &Particletype);
     MPI_Type_commit(&Particletype);
     MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
@@ -758,10 +715,72 @@ void  mpi_custom_types(int argc, char** argv, bool diagnosticFlag)
 
 }
 
-void communicate_graph_topology(int argc, char** argv, bool diagnosticFlag)
+void communicate_graph_topology_()
 {
 
+    cout<<"what is wrong"<<endl;
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    int nnode = 4;
+    int source = rank;
+    int degree;
+    int dest[nnode];
+    int weight[nnode] = {1, 1, 1, 1};
+    int recv[nnode] = {-1, -1, -1, -1};
 
+    
+    
+    //MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+    int send=rank;
+
+
+    // set dest and degree.
+    if (rank == 0)
+    {
+        dest[0] = 1;
+        dest[1] = 3;
+        degree = 2;
+    }
+    else if(rank == 1)
+    {
+        dest[0] = 0;
+        degree = 1;
+    }
+    else if(rank == 2)
+    {
+        dest[0] = 3;
+        dest[1] = 0;
+        dest[2] = 1;
+        degree = 3;
+    }
+    else if(rank == 3)
+    {
+        dest[0] = 0;
+        dest[1] = 2;
+        dest[2] = 1;
+        degree = 3;
+    }
+
+    // create graph.
+    MPI_Comm graph;
+    MPI_Dist_graph_create(MPI_COMM_WORLD, 1, &source, &degree, dest, weight, MPI_INFO_NULL, 1, &graph);
+   
+    // send and gather rank to/from neighbors.
+    MPI_Neighbor_allgather(&send, 1, MPI_INT, recv, 1, MPI_INT, graph);
+    cout<<"end"<<endl;
+    printf("Rank: %i, recv[0] = %i, recv[1] = %i, recv[2] = %i, recv[3] = %i\n", rank, recv[0], recv[1], recv[2], recv[3]);
+
+    MPI_Finalize();
+    return;
+
+
+}
+
+void communicate_graph_topology()
+{
+
+    cout<<"what is wrong"<<endl;
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     int nnode = 4;
@@ -808,9 +827,9 @@ void communicate_graph_topology(int argc, char** argv, bool diagnosticFlag)
 
     printf("Rank: %i, recv[0] = %i, recv[1] = %i, recv[2] = %i, recv[3] = %i\n", rank, recv[0], recv[1], recv[2], recv[3]);
 
-    MPI_Finalize();
     return;
 
 
 }
+
 #endif
